@@ -28,6 +28,9 @@ class MainActivity : ComponentActivity() {
                     // 2. Llama al Composable que contiene toda la lógica de navegación.
                     // Este es el punto de partida de tu UI.
                     AppNavigation()
+                    //HOLAESTOESUNCAMBIOPARAGITHUB
+                    //A LO MEJOR FUNCIONA CON MÚLTIPLES LÍNEAS?
+                    //UWUW LOL
                 }
             }
         }
