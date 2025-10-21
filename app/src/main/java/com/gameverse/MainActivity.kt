@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
                     //HOLAESTOESUNCAMBIOPARAGITHUB
                     //A LO MEJOR FUNCIONA CON MÚLTIPLES LÍNEAS?
                     //UWUW LOL
+                    // holo
                 }
             }
         }
