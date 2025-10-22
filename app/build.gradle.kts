@@ -86,6 +86,12 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    // ---implements para localizacion
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     // --- DEPENDENCIAS ANTIGUAS ELIMINADAS ---
     // implementation("androidx.lifecycle:lifecycle-livedata-ktx:...")
     // implementation("androidx.fragment:fragment-ktx:...")
