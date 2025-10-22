@@ -1,8 +1,12 @@
 package com.gameverse.ui.components
 
-// IMPORTANTE: Este 'import' es la clave para resolver el error.
-// Debe coincidir exactamente con el 'namespace' de tu app en build.gradle.kts.
 import com.gameverse.R
+import android.os.Build
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,38 +15,84 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.AsyncImage
-import com.gameverse.data.model.CartProduct
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.gameverse.data.model.NewsItem
 import com.gameverse.data.model.Product
 
 /**
- * Composable para mostrar el logo de la aplicación.
- * Este es el componente que te falta.
+ * ¡NUEVA FUNCIÓN!
+ * Crea una animación de color infinita que simula el parpadeo de un neón.
+ * Devuelve el color animado que se debe usar en los bordes.
+ */
+@Composable
+private fun rememberNeonFlicker(): Color {
+    val infiniteTransition = rememberInfiniteTransition(label = "neon_flicker_transition")
+    val baseColor = MaterialTheme.colorScheme.primary
+
+    val animatedColor by infiniteTransition.animateColor(
+        initialValue = baseColor.copy(alpha = 1.0f),
+        targetValue = baseColor.copy(alpha = 0.5f), // El target no importa con keyframes
+        animationSpec = infiniteRepeatable(
+            // Definimos "fotogramas clave" para un parpadeo irregular
+            animation = keyframes {
+                durationMillis = 2500
+                baseColor.copy(alpha = 1.0f) at 0
+                baseColor.copy(alpha = 1.0f) at 2000
+                baseColor.copy(alpha = 0.3f) at 2100 // Parpadeo rápido
+                baseColor.copy(alpha = 1.0f) at 2200
+                baseColor.copy(alpha = 0.7f) at 2300 // Parpadeo suave
+                baseColor.copy(alpha = 1.0f) at 2500
+            },
+            repeatMode = RepeatMode.Restart // Reinicia la animación
+        ),
+        label = "neon_flicker_color"
+    )
+    return animatedColor
+}
+
+
+/**
+ * Muestra el logo de la app cargándolo desde tus recursos 'drawable'.
  */
 @Composable
 fun LogoImage(modifier: Modifier = Modifier) {
-    // NOTA: Este Composable asume que tienes una imagen de logo en tu
-    // carpeta `app/src/main/res/drawable`.
-    // Por ahora, usa el ícono de la app por defecto.
-    Image(
-        painter = painterResource(id = R.drawable.ic_launcher_foreground), // Puedes cambiar esto por tu propio logo
+    val context = LocalContext.current
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
+    }
+
+    AsyncImage(
+        model = R.drawable.gameverse_logo,
+        imageLoader = imageLoader,
         contentDescription = "Logo de Gameverse",
         modifier = modifier
-            .size(150.dp)
-            .background(Color.DarkGray, shape = RoundedCornerShape(16.dp)) // Fondo para que el logo por defecto se vea bien
-            .padding(16.dp)
+            .size(200.dp)
+            .clip(RoundedCornerShape(16.dp))
     )
 }
 
@@ -53,6 +103,9 @@ fun NeonTextField(
     label: String,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
+    // ¡CAMBIO! Obtenemos el color animado
+    val animatedBorderColor = rememberNeonFlicker()
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -60,41 +113,16 @@ fun NeonTextField(
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            cursorColor = MaterialTheme.colorScheme.primary
+            // ¡CAMBIO! Usamos el color animado
+            focusedBorderColor = animatedBorderColor,
+            unfocusedBorderColor = animatedBorderColor.copy(alpha = 0.5f), // Más tenue si no está enfocado
+            focusedLabelColor = animatedBorderColor,
+            cursorColor = animatedBorderColor
         ),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = Modifier.fillMaxWidth()
     )
-}
-
-@Composable
-fun NewsCard(newsItem: NewsItem) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-            AsyncImage(
-                model = newsItem.imageUrl,
-                contentDescription = newsItem.title,
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)),
-                contentScale = ContentScale.Crop
-            )
-            Column(Modifier.padding(16.dp)) {
-                Text(newsItem.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Spacer(Modifier.height(4.dp))
-                Text(newsItem.summary, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
 }
 
 @Composable
@@ -104,6 +132,9 @@ fun NeonButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
+    // ¡CAMBIO! Obtenemos el color animado
+    val animatedBorderColor = rememberNeonFlicker()
+
     Button(
         onClick = onClick,
         enabled = enabled,
@@ -111,16 +142,19 @@ fun NeonButton(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
-            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
+            // ¡CAMBIO! Usamos el color animado para el borde
+            .border(1.dp, animatedBorderColor, RoundedCornerShape(8.dp)),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            // ¡CAMBIO! Usamos el color animado para el fondo (con poca opacidad)
+            containerColor = animatedBorderColor.copy(alpha = 0.1f),
+            // ¡MODIFICACIÓN! Añadimos esta línea para que el texto también se anime
+            contentColor = animatedBorderColor
         )
     ) {
         Text(text.uppercase())
     }
 }
 
-// ... (El resto de tus componentes: ProductCard, NewsCard, etc.)
 @Composable
 fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
     Card(
@@ -168,6 +202,33 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
         }
     }
 }
+
+@Composable
+fun NewsCard(newsItem: NewsItem) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
+            AsyncImage(
+                model = newsItem.imageUrl,
+                contentDescription = newsItem.title,
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Column(Modifier.padding(16.dp)) {
+                Text(newsItem.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(4.dp))
+                Text(newsItem.summary, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
 
 @Composable
 fun FullScreenLoader() {

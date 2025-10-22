@@ -55,6 +55,8 @@ dependencies {
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     androidTestImplementation(composeBom)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 
     // --- Dependencias Core y de UI de Compose ---
     implementation(libs.androidx.core.ktx)
