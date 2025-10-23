@@ -1,5 +1,7 @@
 package com.gameverse.ui.screens.cart
 
+import java.text.NumberFormat
+import java.util.Locale
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +34,7 @@ import com.gameverse.viewmodel.CartViewModel
 
 @Composable
 fun CartScreen(cartViewModel: CartViewModel = viewModel()) {
+    val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
     val uiState by cartViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -87,7 +91,7 @@ fun CartScreen(cartViewModel: CartViewModel = viewModel()) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        "$${"%.2f".format(uiState.total)}",
+                        clpFormatter.format(uiState.total),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -107,6 +111,7 @@ fun CartScreen(cartViewModel: CartViewModel = viewModel()) {
 
 @Composable
 private fun CartItem(product: CartProduct, onRemove: () -> Unit) {
+    val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -130,7 +135,7 @@ private fun CartItem(product: CartProduct, onRemove: () -> Unit) {
             ) {
                 Text(product.name, fontWeight = FontWeight.Bold)
                 Text(
-                    "$${"%.2f".format(product.price)}",
+                    clpFormatter.format(product.price),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp
                 )

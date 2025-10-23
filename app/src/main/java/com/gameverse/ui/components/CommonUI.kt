@@ -1,5 +1,7 @@
 package com.gameverse.ui.components
 
+import java.text.NumberFormat
+import java.util.Locale
 import com.gameverse.R
 import android.os.Build
 import androidx.compose.animation.animateColor
@@ -157,6 +159,7 @@ fun NeonButton(
 
 @Composable
 fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
+    val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,7 +193,7 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "$${product.price}",
+                        text = clpFormatter.format(product.price),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary
                     )

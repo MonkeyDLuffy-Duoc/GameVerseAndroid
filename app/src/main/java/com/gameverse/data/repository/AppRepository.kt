@@ -15,12 +15,12 @@ object AppRepository {
     suspend fun getProducts(): List<Product> = withContext(Dispatchers.IO) {
         // Simula una llamada de red
         listOf(
-            Product(1, "Controlador Inalámbrico Élite", "Controlador de alto rendimiento para gaming competitivo.", 99.99, "https://images.unsplash.com/photo-1542751371-adc38448a05e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDEwfHxnYW1pbmclMjBjb250cm9sbGVyfGVufDB8fHx8MTY3OTM2ODU2Nw&ixlib=rb-4.0.3&q=80&w=600"),
-            Product(2, "Auriculares Gaming 7.1", "Sonido envolvente para una inmersión total.", 79.50, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDF8fGdhbWluZyUyMGhlYWRzZXR8ZW58MHx8fHwxNjc5MzY4NjE0&ixlib=rb-4.0.3&q=80&w=600"),
-            Product(3, "Teclado Mecánico RGB", "Respuesta táctil y retroiluminación personalizable.", 120.00, "https://media.solotodo.com/media/products/1054607_picture_1622047938.jpg"),
-            Product(4, "Mouse Gamer Programable", "Sensor de alta precisión y botones configurables.", 45.99, "https://images.unsplash.com/photo-1563297007-0686b7003af7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDEyfHxtZWNoYW5pY2FsJTIwa2V5Ym9hcmR8ZW58MHx8fHwxNjc5MzY4NjQz&ixlib=rb-4.0.3&q=80&w=600"),
-            Product(5, "Silla Gamer Ergonómica", "Soporte lumbar y diseño de carreras.", 189.99, "https://media.solotodo.com/media/products/2259619_picture_1755859033.png"),
-            Product(6, "Webcam Pro 4K", "Videollamadas y streaming en ultra alta definición.", 130.00, "https://media.falabella.com/falabellaCL/116099480_01/w=1500,h=1500,fit=pad")
+            Product(1, "Controlador Inalámbrico Élite", "Controlador de alto rendimiento para gaming competitivo.", 78990.0, "https://images.unsplash.com/photo-1542751371-adc38448a05e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDEwfHxnYW1pbmclMjBjb250cm9sbGVyfGVufDB8fHx8MTY3OTM2ODU2Nw&ixlib=rb-4.0.3&q=80&w=600"),
+            Product(2, "Auriculares Gaming 7.1", "Sonido envolvente para una inmersión total.", 69990.0, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDF8fGdhbWluZyUyMGhlYWRzZXR8ZW58MHx8fHwxNjc5MzY4NjE0&ixlib=rb-4.0.3&q=80&w=600"),
+            Product(3, "Teclado Mecánico RGB", "Respuesta táctil y retroiluminación personalizable.", 120000.0, "https://media.solotodo.com/media/products/1054607_picture_1622047938.jpg"),
+            Product(4, "Mouse Gamer Programable", "Sensor de alta precisión y botones configurables.", 45000.0, "https://images.unsplash.com/photo-1563297007-0686b7003af7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDEyfHxtZWNoYW5pY2FsJTIwa2V5Ym9hcmR8ZW58MHx8fHwxNjc5MzY4NjQz&ixlib=rb-4.0.3&q=80&w=600"),
+            Product(5, "Silla Gamer Ergonómica", "Soporte lumbar y diseño de carreras.", 189000.0, "https://media.solotodo.com/media/products/2259619_picture_1755859033.png"),
+            Product(6, "Webcam Pro 4K", "Videollamadas y streaming en ultra alta definición.", 130000.00, "https://media.falabella.com/falabellaCL/116099480_01/w=1500,h=1500,fit=pad")
         )
     }
 
@@ -35,7 +35,7 @@ object AppRepository {
 
     suspend fun login(user: String, pass: String): Boolean = withContext(Dispatchers.IO) {
         // Simula una validación de red/base de datos.
-        user == "Gameverse" && pass == "duoc2025"
+        user == "Duoc" && pass == "duoc2025"
     }
 
     /**
@@ -49,9 +49,9 @@ object AppRepository {
     suspend fun getUserProfile(): UserProfile = withContext(Dispatchers.IO) {
         // Simula una llamada de red
         UserProfile(
-            username = "Gameverse",
-            fullName = "Usuario de Prueba",
-            email = "contacto@gameverse.dev",
+            username = "Victor",
+            fullName = "Victor Andrade",
+            email = "vic.andrade@gameverse.dev",
             memberSince = "Octubre 2025",
             avatarUrl = "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMTc3M3wwfDF8c2VhcmNofDEyfHxwcm9maWxlJTIwZmVtYWxlfGVufDB8fHx8MTY3OTM2ODkyOA&ixlib=rb-4.0.3&q=80&w=300"
         )

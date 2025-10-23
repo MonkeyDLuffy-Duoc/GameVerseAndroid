@@ -1,14 +1,14 @@
 package com.gameverse.ui.screens.main
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -27,15 +27,31 @@ import com.gameverse.viewmodel.MainViewModel
 @Composable
 fun MainScreenContainer(
     mainViewModel: MainViewModel,
-    cartViewModel: CartViewModel, // <-- PARÁMETRO AÑADIDO
+    cartViewModel: CartViewModel,
     onNavigateToCart: () -> Unit
 ) {
     val bottomNavController = rememberNavController()
 
+    // 1. Observamos el estado del ViewModel principal
+    val uiState by mainViewModel.uiState.collectAsState()
+
+    // 2. Obtenemos el nombre de usuario (es 'nullable', puede que aún no haya cargado)
+    val username = uiState.userProfile?.username
+
+    // 3. Creamos el texto del título dinámicamente
+    val titleText = if (username != null) "¡Hola, $username!" else "Gameverse"
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gameverse") },
+                // 4. Usamos el nuevo texto del título
+                title = {
+                    Text(
+                        text = titleText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 actions = {
                     IconButton(onClick = onNavigateToCart) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de compras")
