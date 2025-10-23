@@ -1,5 +1,23 @@
 package com.gameverse.ui.screens.profile
 
+// 👇 INICIO: Imports necesarios para la ubicación
+import android.Manifest
+import android.annotation.SuppressLint
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+// Asumiendo que tu UbicacionViewModel está en este paquete. ¡Ajusta si es necesario!
+import com.gameverse.viewmodel.UbicacionViewModel
+// 👆 FIN: Imports necesarios para la ubicación
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,10 +45,47 @@ import com.gameverse.ui.components.FullScreenLoader
 import com.gameverse.ui.theme.TextSecondary
 import com.gameverse.viewmodel.MainViewModel
 
+@OptIn(ExperimentalPermissionsApi::class) // 👈 Anotación para la API de permisos
+@SuppressLint("MissingPermission")      // 👈 Anotación para suprimir advertencias de permisos
 @Composable
-fun ProfileScreen(mainViewModel: MainViewModel = viewModel()) {
+fun ProfileScreen(
+    mainViewModel: MainViewModel = viewModel(),
+    // 1. Obtenemos una instancia del ViewModel de ubicación
+    ubicacionViewModel: UbicacionViewModel = viewModel()
+) {
     val uiState by mainViewModel.uiState.collectAsState()
     val user = uiState.userProfile
+
+    // 2. Lógica para manejar permisos y obtener la ubicación (igual que antes)
+    val contexto = LocalContext.current
+    val permisoUbicacion = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    val tienePermiso = permisoUbicacion.status is PermissionStatus.Granted
+
+    if (tienePermiso) {
+        // DisposableEffect se asegura de que la ubicación se pida solo cuando
+        // sea necesario y se detenga cuando la pantalla ya no esté visible.
+        DisposableEffect(Unit) {
+            val proveedorUbicacion = LocationServices.getFusedLocationProviderClient(contexto)
+            val callbackUbicacion = object : LocationCallback() {
+                override fun onLocationResult(resultado: LocationResult) {
+                    resultado.lastLocation?.let {
+                        // Cuando obtenemos una ubicación, actualizamos el ViewModel
+                        ubicacionViewModel.actualizarUbicacion(it.latitude, it.longitude)
+                    }
+                }
+            }
+            val solicitudUbicacion = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY, 10000L).build()
+
+            proveedorUbicacion.requestLocationUpdates(solicitudUbicacion, callbackUbicacion, null)
+
+            // Se ejecuta cuando el composable se va, para dejar de pedir la ubicación
+            onDispose {
+                proveedorUbicacion.removeLocationUpdates(callbackUbicacion)
+            }
+        }
+    }
+
 
     if (uiState.isLoading) {
         FullScreenLoader()
@@ -41,6 +97,7 @@ fun ProfileScreen(mainViewModel: MainViewModel = viewModel()) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // --- Tu código de perfil de usuario (sin cambios) ---
             AsyncImage(
                 model = user.avatarUrl,
                 contentDescription = "Avatar de ${user.username}",
@@ -62,6 +119,37 @@ fun ProfileScreen(mainViewModel: MainViewModel = viewModel()) {
                 fontSize = 20.sp,
                 color = TextSecondary
             )
+
+            // --- 3. INICIO: Sección de Ubicación integrada en la UI ---
+            Spacer(modifier = Modifier.height(32.dp))
+            Divider() // Un separador visual
+            Spacer(modifier = Modifier.height(32.dp))
+
+            if (!tienePermiso) {
+                Button(onClick = { permisoUbicacion.launchPermissionRequest() }) {
+                    Text("Activar ubicación")
+                }
+            } else {
+                Text(
+                    text = "Manten tu ubicación actualizada para que nuestros productos lleguen siempre a tu destino!",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Ubicación actual",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                // Mostramos la dirección obtenida del ViewModel
+                Text(
+                    text = ubicacionViewModel.direccion ?: "Obteniendo...",
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            // --- FIN: Sección de Ubicación ---
         }
     }
 }
