@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -41,10 +42,11 @@ fun MainScreenContainer(
     // 3. Creamos el texto del título dinámicamente
     val titleText = if (username != null) "¡Hola, $username!" else "Gameverse"
 
+    // ¡CAMBIO CLAVE! Hacemos el Scaffold transparente
     Scaffold(
+        containerColor = Color.Transparent, // <-- HACE EL FONDO DEL SCAFFOLD TRANSPARENTE
         topBar = {
             TopAppBar(
-                // 4. Usamos el nuevo texto del título
                 title = {
                     Text(
                         text = titleText,
@@ -52,6 +54,12 @@ fun MainScreenContainer(
                         overflow = TextOverflow.Ellipsis
                     )
                 },
+                // Hacemos la barra superior semitransparente también
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Black.copy(alpha = 0.3f),
+                    titleContentColor = MaterialTheme.colorScheme.primary, // Color de texto neón
+                    actionIconContentColor = MaterialTheme.colorScheme.primary // Color de ícono neón
+                ),
                 actions = {
                     IconButton(onClick = onNavigateToCart) {
                         Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito de compras")
@@ -60,7 +68,10 @@ fun MainScreenContainer(
             )
         },
         bottomBar = {
-            NavigationBar {
+            // Hacemos la barra de navegación semitransparente
+            NavigationBar(
+                containerColor = Color.Black.copy(alpha = 0.5f)
+            ) {
                 val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val items = listOf(

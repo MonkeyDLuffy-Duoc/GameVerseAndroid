@@ -37,6 +37,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -154,12 +155,14 @@ fun ProfileScreen(
                 Text(
                     text = "¡Manten tu ubicación actualizada para que nuestros productos lleguen siempre a tu destino!",
                     style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFFFEFCF9),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Ubicación actual",
                     style = MaterialTheme.typography.titleMedium,
+                    color = Color(0xFFFEFCF9),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))

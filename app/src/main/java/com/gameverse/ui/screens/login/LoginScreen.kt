@@ -19,31 +19,44 @@ fun LoginScreen(
     loginViewModel: LoginViewModel,
     onLoginSuccess: () -> Unit
 ) {
-    // 1. Observa el estado del ViewModel. La UI se recompone automáticamente cuando cambia.
+    // 1. Observa el estado del ViewModel.
     val uiState by loginViewModel.uiState.collectAsState()
 
     // 2. Estados locales para guardar el contenido de los campos de texto.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // 3. 'LaunchedEffect' se ejecuta cuando 'uiState.loginSuccess' cambia.
-    //    Si es 'true', llama a la función para navegar a la pantalla principal.
+    // 3. Efecto para navegar cuando el login es exitoso.
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
             onLoginSuccess()
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
+    // 4. ¡CAMBIO CLAVE! Usamos un Box en lugar de una Column.
+    //    Un Box nos permite alinear elementos de forma independiente.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 32.dp) // Mantenemos el padding horizontal
+    ) {
+
+        // 5. EL LOGO:
+        //    Lo alineamos en la parte superior central (TopCenter)
+        //    y le damos un padding para separarlo del borde.
+        LogoImage(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp),
-            verticalArrangement = Arrangement.Center,
+                .align(Alignment.TopCenter)
+                .padding(top = 80.dp) // <-- ¡Mueve el logo hacia arriba!
+        )
+
+        // 6. LOS CAMPOS DE TEXTO Y EL BOTÓN:
+        //    Los agrupamos en su propia Column
+        //    y alineamos esa Column en el centro (Center).
+        Column(
+            modifier = Modifier.align(Alignment.Center), // <-- ¡Centra este bloque!
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LogoImage()
-            Spacer(modifier = Modifier.height(48.dp))
             NeonTextField(
                 value = username,
                 onValueChange = { username = it },
@@ -58,7 +71,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. Muestra el mensaje de error solo si 'uiState.error' no es nulo.
+            // Muestra el mensaje de error si existe
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
@@ -74,7 +87,8 @@ fun LoginScreen(
             )
         }
 
-        // 5. Muestra el loader de pantalla completa si 'uiState.isLoading' es 'true'.
+        // 7. EL LOADER:
+        //    Se muestra encima de todo cuando está cargando.
         if (uiState.isLoading) {
             FullScreenLoader()
         }

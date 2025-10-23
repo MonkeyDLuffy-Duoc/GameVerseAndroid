@@ -20,7 +20,7 @@ class LoginViewModel(
     fun login(user: String, pass: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            delay(1500L) // Simular llamada de red
+            delay(3000L) // Simular llamada de red
             val loginResult = repository.login(user, pass)
             if (loginResult) {
                 _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
