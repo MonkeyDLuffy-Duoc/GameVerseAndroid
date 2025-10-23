@@ -1,6 +1,5 @@
 package com.gameverse.ui.screens.profile
 
-// 👇 INICIO: Imports necesarios para la ubicación
 import android.Manifest
 import android.annotation.SuppressLint
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -14,9 +13,12 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
-// Asumiendo que tu UbicacionViewModel está en este paquete. ¡Ajusta si es necesario!
+// imports ubicacion
 import com.gameverse.viewmodel.UbicacionViewModel
-// 👆 FIN: Imports necesarios para la ubicación
+// imports selector imagenes
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.gameverse.viewmodel.SelectorImagenViewModel
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,7 +53,9 @@ import com.gameverse.viewmodel.MainViewModel
 fun ProfileScreen(
     mainViewModel: MainViewModel = viewModel(),
     // 1. Obtenemos una instancia del ViewModel de ubicación
-    ubicacionViewModel: UbicacionViewModel = viewModel()
+    ubicacionViewModel: UbicacionViewModel = viewModel(),
+    selectorImagenViewModel: SelectorImagenViewModel = viewModel()
+
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
     val user = uiState.userProfile
@@ -86,6 +90,15 @@ fun ProfileScreen(
         }
     }
 
+    val lanzadorGaleria = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        // Cuando el usuario elige una imagen, su URI se guarda en el ViewModel
+        uri?.let {
+            selectorImagenViewModel.asignarUriImagen(it.toString())
+        }
+    }
+
 
     if (uiState.isLoading) {
         FullScreenLoader()
@@ -97,15 +110,23 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // --- Tu código de perfil de usuario (sin cambios) ---
+            // imagen dinámica
             AsyncImage(
-                model = user.avatarUrl,
+                // Si hay una URI en 'selectorImagenViewModel', la usamos.
+                // Si no, usamos la URL original del perfil.
+                model = selectorImagenViewModel.uriImagen ?: user.avatarUrl,
                 contentDescription = "Avatar de ${user.username}",
                 modifier = Modifier
                     .size(150.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 4. FOTO: Añadimos un botón para cambiar la imagen
+            Button(onClick = { lanzadorGaleria.launch("image/*") }) {
+                Text("Cambiar foto")
+            }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = user.fullName,
@@ -131,7 +152,7 @@ fun ProfileScreen(
                 }
             } else {
                 Text(
-                    text = "Manten tu ubicación actualizada para que nuestros productos lleguen siempre a tu destino!",
+                    text = "¡Manten tu ubicación actualizada para que nuestros productos lleguen siempre a tu destino!",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
